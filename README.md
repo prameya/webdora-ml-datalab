@@ -47,7 +47,7 @@ trips
 ---
 ### Table blow:
 
-```
+
 pickup_datetime	| pickup_longitude | pickup_latitude | dropoff_longitude | dropoff_latitude | passenger_count | trip_distance | tolls_amount | fare_amount | total_amount
 ---	| --- | --- | --- | --- | --- | --- | --- | --- | ---
 0	| 2010-02-05 | 01:20:05 |	-73.979935 | 40.761105 | -73.966230 | 40.689831 | 1 | 84.8 | 0.0 | 0.0 | 0.0
@@ -60,7 +60,7 @@ pickup_datetime	| pickup_longitude | pickup_latitude | dropoff_longitude | dropo
 7	| 2013-08-15 | 03:49:56	| -73.937020 | 40.620175 | -73.936452 | 40.620522 | 1 | 0.0 | 0.0 | 0.0 | 0.0
 8	| 2010-03-02 | 14:45:23	| -73.973403 | 40.754323 | -73.806456 | 40.652384 | 1 | 14.9 | 0.0 | 0.0 | 0.0
 9	| 2010-03-11 | 01:24:14	| -73.990386 | 40.757301 | -74.006484 | 40.782452 | 1 | 46.4 | 6.0 | 0.0 | 6.0
-```
+
 
 ---
 
