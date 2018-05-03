@@ -29,14 +29,14 @@ $.getScript('https://kmahelona.github.io/ipython_notebook_goodies/ipython_notebo
 ```
 
 ## Extract sample data from BigQuery
-The dataset that we will use is a `BigQuery public dataset`. Click on the [link](https://bigquery.cloud.google.com/table/nyc-tlc:yellow.trips, "BigQuery NY Taxicab Data Set"), and look at the column names. Switch to the Details tab to verify that the number of records is one billion, and then switch to the Preview tab to look at a few rows.
+The dataset that we will use is a `BigQuery public dataset`. Click on the [link](https://bigquery.cloud.google.com/table/nyc-tlc:yellow.trips "BigQuery NY Taxicab Data Set"), and look at the column names. Switch to the Details tab to verify that the number of records is one billion, and then switch to the Preview tab to look at a few rows.
 
 Let's write a SQL query to pick up interesting fields from the dataset.
 
 ```SQL
 %sql --module afewrecords
 SELECT pickup_datetime, pickup_longitude, pickup_latitude, dropoff_longitude,
-dropoff_latitude, passenger_count, trip_distance, tolls_amount, 
+dropoff_latitude, passenger_count, trip_distance, tolls_amount,
 fare_amount, total_amount FROM [nyc-tlc:yellow.trips] LIMIT 10
 ```
 
@@ -48,17 +48,18 @@ trips
 ### Table blow:
 
 ```
-pickup_datetime	pickup_longitude	pickup_latitude	dropoff_longitude	dropoff_latitude	passenger_count	trip_distance	tolls_amount	fare_amount	total_amount
-0	2010-02-05 01:20:05	-73.979935	40.761105	-73.966230	40.689831	1	84.8	0.0	0.0	0.0
-1	2010-03-07 00:58:45	-74.001449	40.726071	-73.980448	40.744253	2	2.2	0.0	0.0	0.0
-2	2010-03-05 20:17:51	-73.863740	40.734245	-73.991364	40.750096	1	7.6	0.0	0.0	0.0
-3	2010-03-29 08:12:38	-73.993394	40.747158	-73.790150	40.646883	1	171.1	0.0	0.0	0.0
-4	2015-02-22 22:40:31	-73.937363	40.758041	-73.937386	40.758060	1	0.0	0.0	0.0	0.0
-5	2010-03-14 05:27:23	-73.993982	40.770577	-73.997214	40.762466	1	12.4	0.0	0.0	0.0
-6	2010-02-04 22:41:28	-73.991934	40.730339	-73.991934	40.730339	1	0.0	0.0	0.0	0.0
-7	2013-08-15 03:49:56	-73.937020	40.620175	-73.936452	40.620522	1	0.0	0.0	0.0	0.0
-8	2010-03-02 14:45:23	-73.973403	40.754323	-73.806456	40.652384	1	14.9	0.0	0.0	0.0
-9	2010-03-11 01:24:14	-73.990386	40.757301	-74.006484	40.782452	1	46.4	6.0	0.0	6.0
+pickup_datetime	| pickup_longitude | pickup_latitude | dropoff_longitude | dropoff_latitude | passenger_count | trip_distance | tolls_amount | fare_amount | total_amount
+---	| --- | --- | --- | --- | --- | --- | --- | --- | ---
+0	| 2010-02-05 | 01:20:05 |	-73.979935 | 40.761105 | -73.966230 | 40.689831 | 1 | 84.8 | 0.0 | 0.0 | 0.0
+1	| 2010-03-07 | 00:58:45	| -74.001449 | 40.726071 | -73.980448	| 40.744253	| 2 | 2.2 | 0.0 | 0.0 | 0.0
+2	| 2010-03-05 | 20:17:51	| -73.863740 | 40.734245 | -73.991364 | 40.750096 | 1 | 7.6 | 0.0 | 0.0 | 0.0
+3	| 2010-03-29 | 08:12:38	| -73.993394 | 40.747158 | -73.790150 | 40.646883 | 1 | 171.1 | 0.0 | 0.0 | 0.0
+4	| 2015-02-22 | 22:40:31	| -73.937363 | 40.758041 | -73.937386 | 40.758060 | 1 | 0.0 | 0.0 | 0.0 | 0.0
+5	| 2010-03-14 | 05:27:23	| -73.993982 | 40.770577 | -73.997214 | 40.762466 | 1 | 12.4 | 0.0 | 0.0 | 0.0
+6	| 2010-02-04 | 22:41:28	| -73.991934 | 40.730339 | -73.991934 | 40.730339 | 1 | 0.0 | 0.0 | 0.0 | 0.0
+7	| 2013-08-15 | 03:49:56	| -73.937020 | 40.620175 | -73.936452 | 40.620522 | 1 | 0.0 | 0.0 | 0.0 | 0.0
+8	| 2010-03-02 | 14:45:23	| -73.973403 | 40.754323 | -73.806456 | 40.652384 | 1 | 14.9 | 0.0 | 0.0 | 0.0
+9	| 2010-03-11 | 01:24:14	| -73.990386 | 40.757301 | -74.006484 | 40.782452 | 1 | 46.4 | 6.0 | 0.0 | 6.0
 ```
 
 ---
@@ -69,7 +70,7 @@ Let's increase the number of records so that we can do some neat graphs. There i
 %sql --module afewrecords2
 SELECT
   pickup_datetime,
-  pickup_longitude, pickup_latitude, 
+  pickup_longitude, pickup_latitude,
   dropoff_longitude, dropoff_latitude,
   passenger_count,
   trip_distance,
@@ -104,7 +105,7 @@ Note the extra WHERE clauses.
 %sql --module afewrecords3
 SELECT
   pickup_datetime,
-  pickup_longitude, pickup_latitude, 
+  pickup_longitude, pickup_latitude,
   dropoff_longitude, dropoff_latitude,
   passenger_count,
   trip_distance,
@@ -306,7 +307,7 @@ df_test = pd.read_csv('taxi-test.csv', header=None, names=columns)
 rate = df_train['fare_amount'].mean() / estimate_distance(df_train).mean()
 print ("Rate = ${0}/km".format(rate))
 print_rmse(df_train, rate, 'Train')
-print_rmse(df_valid, rate, 'Valid') 
+print_rmse(df_valid, rate, 'Valid')
 print_rmse(df_test, rate, 'Test')
 ```
 
@@ -353,7 +354,7 @@ WHERE
       query = "{0} AND ABS(HASH(pickup_datetime)) % 4 == {1}".format(base_query, phase)
   else:
       query = "{0} AND ABS(HASH(pickup_datetime)) % {1} == {2}".format(base_query, EVERY_N, phase)
-    
+
   return query
 
 query = create_query(2, 100000)
@@ -364,5 +365,7 @@ print_rmse(df_valid, 2.56, 'Final Validation Set')
 The simple distance-based rule gives us a RMSE of $8.03. We have to beat this, of course, but you will find that simple rules of thumb like this can be surprisingly difficult to beat.
 
 Let's be ambitious, though, and make our goal to build ML models that have a RMSE of less than $6 on the test set.
+
 ---
+
 _Copyright 2016 Google Inc. Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License._
