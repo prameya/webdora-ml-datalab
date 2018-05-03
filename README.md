@@ -3,14 +3,14 @@
 ## Explore and create ML datasets
 In this notebook, we will explore data corresponding to taxi rides in New York City to build a Machine Learning model in support of a fare-estimation tool. The idea is to suggest a likely fare to taxi riders so that they are not surprised, and so that they can protest if the charge is much higher than expected.
 
-1. Explore and create ML datasets
-    1. Extract sample data from BigQuery
-    2. Exploring data
-    3. Quality control and other preprocessing
-    4. Create ML datasets
-    5. Verify that datasets exist
-    6. Benchmark
-  1. Benchmark on same dataset
+* Explore and create ML datasets
+    * Extract sample data from BigQuery
+    * Exploring data
+    * Quality control and other preprocessing
+    * Create ML datasets
+    * Verify that datasets exist
+    * Benchmark
+  * Benchmark on same dataset
 
 Let's start off with the Python imports that we need.
 
