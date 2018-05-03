@@ -14,14 +14,14 @@ In this notebook, we will explore data corresponding to taxi rides in New York C
 
 Let's start off with the Python imports that we need.
 
-```
+```python
 import datalab.bigquery as bq
 import seaborn as sns
 import pandas as pd
 import numpy as np
 import shutil
 ```
-```
+```javascript
 %%javascript
 $.getScript('https://kmahelona.github.io/ipython_notebook_goodies/ipython_notebook_toc.js')
 ```
@@ -30,18 +30,19 @@ The dataset that we will use is a `BigQuery public dataset`. Click on the link, 
 
 Let's write a SQL query to pick up interesting fields from the dataset.
 
-```
+```SQL
 %sql --module afewrecords
 SELECT pickup_datetime, pickup_longitude, pickup_latitude, dropoff_longitude,
 dropoff_latitude, passenger_count, trip_distance, tolls_amount, 
 fare_amount, total_amount FROM [nyc-tlc:yellow.trips] LIMIT 10
 ```
-```
+```python
 trips = bq.Query(afewrecords).to_dataframe()
 trips
 ```
 ---
 ### Table blow:
+```
 pickup_datetime	pickup_longitude	pickup_latitude	dropoff_longitude	dropoff_latitude	passenger_count	trip_distance	tolls_amount	fare_amount	total_amount
 0	2010-02-05 01:20:05	-73.979935	40.761105	-73.966230	40.689831	1	84.8	0.0	0.0	0.0
 1	2010-03-07 00:58:45	-74.001449	40.726071	-73.980448	40.744253	2	2.2	0.0	0.0	0.0
@@ -53,12 +54,12 @@ pickup_datetime	pickup_longitude	pickup_latitude	dropoff_longitude	dropoff_latit
 7	2013-08-15 03:49:56	-73.937020	40.620175	-73.936452	40.620522	1	0.0	0.0	0.0	0.0
 8	2010-03-02 14:45:23	-73.973403	40.754323	-73.806456	40.652384	1	14.9	0.0	0.0	0.0
 9	2010-03-11 01:24:14	-73.990386	40.757301	-74.006484	40.782452	1	46.4	6.0	0.0	6.0
-
+```
 ---
 
 Let's increase the number of records so that we can do some neat graphs. There is no guarantee about the order in which records are returned, and so no guarantee about which records get returned if we simply increase the LIMIT. To properly sample the dataset, let's use the HASH of the pickup time and return 1 in 100,000 records -- because there are 1 billion records in the data, we should get back approximately 10,000 records if we do this.
 
-```
+```SQL
 %sql --module afewrecords2
 SELECT
   pickup_datetime,
@@ -74,7 +75,7 @@ FROM
 WHERE
   ABS(HASH(pickup_datetime)) % $EVERY_N == 1
 ```
-```
+```python
 trips = bq.Query(afewrecords2, EVERY_N=100000).to_dataframe()
 trips[:10]
 ```
@@ -82,7 +83,7 @@ trips[:10]
 ## Exploring data
 Let's explore this dataset and clean it up as necessary. We'll use the Python Seaborn package to visualize graphs and Pandas to do the slicing and filtering.
 
-```
+```python
 ax = sns.regplot(x="trip_distance", y="fare_amount", fit_reg=False, ci=None, truncate=True, data=trips)
 ```
 
@@ -92,7 +93,7 @@ It appears that we have a lot of invalid data that is being coded as zero distan
 
 Note the extra WHERE clauses.
 
-```
+```sql
 %sql --module afewrecords3
 SELECT
   pickup_datetime,
@@ -109,7 +110,7 @@ WHERE
   (ABS(HASH(pickup_datetime)) % $EVERY_N == 1 AND
   trip_distance > 0 AND fare_amount >= 2.5)
 ```
-```
+```python
 trips = bq.Query(afewrecords3, EVERY_N=100000).to_dataframe()
 ax = sns.regplot(x="trip_distance", y="fare_amount", fit_reg=False, ci=None, truncate=True, data=trips)
 ```
@@ -118,7 +119,7 @@ What's up with the streaks at $45 and $50? Those are fixed-amount rides from JFK
 
 Let's examine whether the toll amount is captured in the total amount.
 
-```
+```python
 tollrides = trips[trips['tolls_amount'] > 0]
 tollrides[tollrides['pickup_datetime'] == '2012-09-05 15:45:00']
 ```
@@ -126,7 +127,7 @@ Looking a few samples above, it should be clear that the total amount reflects f
 
 Let's also look at the distribution of values within the columns.
 
-```
+```python
 trips.describe()
 ```
 
@@ -134,7 +135,7 @@ Hmm ... The min, max of longitude look strange.
 
 Finally, let's actually look at the start and end of a few of the trips.
 
-```
+```python
 def showrides(df, numlines):
   import matplotlib.pyplot as plt
   lats = []
@@ -152,7 +153,7 @@ def showrides(df, numlines):
 
 showrides(trips, 10)
 ```
-```
+```python
 showrides(tollrides, 10)
 ```
 
@@ -171,7 +172,7 @@ We could do preprocessing in BigQuery, similar to how we removed the zero-distan
 
 This sort of preprocessing of input data is quite common in ML, especially if the quality-control is dynamic.
 
-```
+```python
 def preprocess(trips_in):
   trips = trips_in.copy(deep=True)
   trips.fare_amount = trips.fare_amount + trips.tolls_amount
@@ -203,7 +204,7 @@ Let's move on to creating the ML datasets.
 ## Create ML datasets
 Let's split the QCed data randomly into training, validation and test sets.
 
-```
+```python
 shuffled = tripsqc.sample(frac=1)
 trainsize = int(len(shuffled['fare_amount']) * 0.70)
 validsize = int(len(shuffled['fare_amount']) * 0.15)
@@ -212,19 +213,19 @@ df_train = shuffled.iloc[:trainsize, :]
 df_valid = shuffled.iloc[trainsize:(trainsize+validsize), :]
 df_test = shuffled.iloc[(trainsize+validsize):, :]
 ```
-```
+```python
 df_train.describe()
 ```
-```
+```python
 df_valid.describe()
 ```
-```
+```python
 df_test.describe()
 ```
 
 Let's write out the three dataframes to appropriately named csv files. We can use these csv files for local training (recall that these files represent only 1/100,000 of the full dataset) until we get to point of using Dataflow and Cloud ML.
 
-```
+```python
 def to_csv(df, filename):
   outdf = df.copy(deep=False)
   outdf.loc[:, 'key'] = np.arange(0, len(outdf)) # rownumber as key
@@ -240,16 +241,19 @@ to_csv(df_train, 'taxi-train.csv')
 to_csv(df_valid, 'taxi-valid.csv')
 to_csv(df_test, 'taxi-test.csv')
 ```
-```
+```bash
 !head -10 taxi-valid.csv
 ```
+
 Verify that datasets exist
-```
+
+```bash
 !ls -l *.csv
 ```
+
 We have 3 .csv files corresponding to train, valid, test. The ratio of file-sizes correspond to our split of the data.
 
-```
+```bash
 %bash
 head taxi-train.csv
 ```
@@ -261,7 +265,7 @@ Before we start building complex ML models, it is a good idea to come up with a 
 
 My model is going to be to simply divide the mean fare_amount by the mean trip_distance to come up with a rate and use that to predict. Let's compute the RMSE of such a model.
 
-```
+```python
 import datalab.bigquery as bq
 import pandas as pd
 import numpy as np
@@ -299,7 +303,7 @@ print_rmse(df_test, rate, 'Test')
 ## Benchmark on same dataset
 The RMSE depends on the dataset, and for comparison, we have to evaluate on the same dataset each time. We'll use this query in later labs:
 
-```
+```python
 def create_query(phase, EVERY_N):
   """
   phase: 1=train 2=valid
