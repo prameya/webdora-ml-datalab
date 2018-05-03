@@ -4,6 +4,7 @@
 In this notebook, we will explore data corresponding to taxi rides in New York City to build a Machine Learning model in support of a fare-estimation tool. The idea is to suggest a likely fare to taxi riders so that they are not surprised, and so that they can protest if the charge is much higher than expected.
 
 * Explore and create ML datasets
+  * (level)
     * Extract sample data from BigQuery
     * Exploring data
     * Quality control and other preprocessing
@@ -21,12 +22,14 @@ import pandas as pd
 import numpy as np
 import shutil
 ```
+
 ```javascript
 %%javascript
 $.getScript('https://kmahelona.github.io/ipython_notebook_goodies/ipython_notebook_toc.js')
 ```
+
 ## Extract sample data from BigQuery
-The dataset that we will use is a `BigQuery public dataset`. Click on the link, and look at the column names. Switch to the Details tab to verify that the number of records is one billion, and then switch to the Preview tab to look at a few rows.
+The dataset that we will use is a `BigQuery public dataset`. Click on the [link](https://bigquery.cloud.google.com/table/nyc-tlc:yellow.trips, "BigQuery NY Taxicab Data Set"), and look at the column names. Switch to the Details tab to verify that the number of records is one billion, and then switch to the Preview tab to look at a few rows.
 
 Let's write a SQL query to pick up interesting fields from the dataset.
 
@@ -36,12 +39,14 @@ SELECT pickup_datetime, pickup_longitude, pickup_latitude, dropoff_longitude,
 dropoff_latitude, passenger_count, trip_distance, tolls_amount, 
 fare_amount, total_amount FROM [nyc-tlc:yellow.trips] LIMIT 10
 ```
+
 ```python
 trips = bq.Query(afewrecords).to_dataframe()
 trips
 ```
 ---
 ### Table blow:
+
 ```
 pickup_datetime	pickup_longitude	pickup_latitude	dropoff_longitude	dropoff_latitude	passenger_count	trip_distance	tolls_amount	fare_amount	total_amount
 0	2010-02-05 01:20:05	-73.979935	40.761105	-73.966230	40.689831	1	84.8	0.0	0.0	0.0
@@ -55,6 +60,7 @@ pickup_datetime	pickup_longitude	pickup_latitude	dropoff_longitude	dropoff_latit
 8	2010-03-02 14:45:23	-73.973403	40.754323	-73.806456	40.652384	1	14.9	0.0	0.0	0.0
 9	2010-03-11 01:24:14	-73.990386	40.757301	-74.006484	40.782452	1	46.4	6.0	0.0	6.0
 ```
+
 ---
 
 Let's increase the number of records so that we can do some neat graphs. There is no guarantee about the order in which records are returned, and so no guarantee about which records get returned if we simply increase the LIMIT. To properly sample the dataset, let's use the HASH of the pickup time and return 1 in 100,000 records -- because there are 1 billion records in the data, we should get back approximately 10,000 records if we do this.
@@ -75,6 +81,7 @@ FROM
 WHERE
   ABS(HASH(pickup_datetime)) % $EVERY_N == 1
 ```
+
 ```python
 trips = bq.Query(afewrecords2, EVERY_N=100000).to_dataframe()
 trips[:10]
@@ -110,6 +117,7 @@ WHERE
   (ABS(HASH(pickup_datetime)) % $EVERY_N == 1 AND
   trip_distance > 0 AND fare_amount >= 2.5)
 ```
+
 ```python
 trips = bq.Query(afewrecords3, EVERY_N=100000).to_dataframe()
 ax = sns.regplot(x="trip_distance", y="fare_amount", fit_reg=False, ci=None, truncate=True, data=trips)
@@ -123,6 +131,7 @@ Let's examine whether the toll amount is captured in the total amount.
 tollrides = trips[trips['tolls_amount'] > 0]
 tollrides[tollrides['pickup_datetime'] == '2012-09-05 15:45:00']
 ```
+
 Looking a few samples above, it should be clear that the total amount reflects fare amount, toll and tip somewhat arbitrarily -- this is because when customers pay cash, the tip is not known. So, we'll use the sum of fare_amount + tolls_amount as what needs to be predicted. Tips are discretionary and do not have to be included in our fare estimation tool.
 
 Let's also look at the distribution of values within the columns.
@@ -153,6 +162,7 @@ def showrides(df, numlines):
 
 showrides(trips, 10)
 ```
+
 ```python
 showrides(tollrides, 10)
 ```
